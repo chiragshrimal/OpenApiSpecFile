@@ -10,7 +10,11 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/yaml": "^1.9.7",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.1"
   }
 }
