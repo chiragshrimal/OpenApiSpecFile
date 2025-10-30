@@ -1,0 +1,228 @@
+openapi: 3.0.3
+info:
+  title: Todo Backend API
+  description: Simple Todo backend (signup, signin, create/list todos, health)
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /signup:
+    post:
+      summary: Create a new user (signup)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /signin:
+    post:
+      summary: Authenticate user (signin)
+      description: Returns a token on successful signin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "jwt_token"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "i am working fine"
+
+  /createTodo:
+    post:
+      summary: Create a todo item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoRequest'
+      responses:
+        '201':
+          description: Todo created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todo:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Todo'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /todoList:
+    get:
+      summary: List todos for a user
+      description: Returns the todo list. The example code expects an email in the request body; here we support both query param and optional requestBody for compatibility.
+      parameters:
+        - name: email
+          in: query
+          schema:
+            type: string
+          description: user email (preferred via query)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: List of todos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todo:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Todo'
+        '400':
+          description: Validation error (missing email)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "strongP@ssw0rd"
+
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "strongP@ssw0rd"
+
+    CreateTodoRequest:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          example: "Buy milk"
+        description:
+          type: string
+          example: "2 litres whole milk"
+
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "todo_id"
+        title:
+          type: string
+          example: "gym"
+        description:
+          type: string
+          example: "I worked out for two hours"
+        status:
+          type: string
+          example: "done"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-10-30T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "You have signed up successfully!"
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "please provide all the information"
